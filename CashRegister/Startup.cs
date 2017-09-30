@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CashRegister.AppDbContext;
+using CashRegister.Helper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using CashRegister.AppDbContext;
 
 namespace CashRegister
 {
-    public class Startup
+	public class Startup
     {
         public Startup(IHostingEnvironment env)
         {
@@ -37,7 +34,8 @@ namespace CashRegister
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
+			ApplicationDbContext context)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -60,6 +58,17 @@ namespace CashRegister
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+			try
+			{
+				context.Database.Migrate();
+			}
+			catch
+			{
+				//ignore
+			}
+
+			new DbInitializer(context).Initialize();
         }
     }
 }
