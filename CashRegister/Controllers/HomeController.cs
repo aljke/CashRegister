@@ -24,21 +24,36 @@ namespace CashRegister.Controllers
 			_logger = logger;
 		}
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
 			var products = purchaseRepo.GetAllProductsAsync();
 			ViewBag.ProductsSelect = new SelectList(products, "Id", "Caption");
 
+			return View();
+        }
+
+		[HttpGet("api/GetGeneralData")]
+		public async Task<IActionResult> GetGeneralData()
+		{
 			var allPurchases = await purchaseRepo.GetAllCheckDataAsync();
 			var todayPurchases = allPurchases.Where(x => x.UtcTime.Day == DateTime.UtcNow.Day);
 
-			ViewBag.PurchasesCount = allPurchases.Count();
-			ViewBag.TotalAmount = allPurchases.Sum(x => x.CheckProducts.Sum(y => y.Price * y.Amount));
-			ViewBag.TodayPurchases = todayPurchases.Count();
-			ViewBag.TodayPreceeds = todayPurchases.Sum(x => x.CheckProducts.Sum(y => y.Price * y.Amount));
+			var viewModel = new GeneralDataViewModel();
+			viewModel.PurchasesCount = allPurchases.Count();
+			viewModel.TotalPreceeds = allPurchases.Sum(x => x.CheckProducts.Sum(y => y.Price * y.Amount));
+			viewModel.TodayPurchases = todayPurchases.Count();
+			viewModel.TodayPreceeds = todayPurchases.Sum(x => x.CheckProducts.Sum(y => y.Price * y.Amount));
 
-			return View();
-        }
+			try
+			{
+				return Ok(JsonConvert.SerializeObject(viewModel));
+			}
+			catch (Exception ex)
+			{
+				_logger.LogCritical(ex.StackTrace); 
+				return new BadRequestResult();
+			}
+		}
 
 		[HttpPost]
 		public async Task<IActionResult> PerformPurchase([FromBody]JToken json)

@@ -79,11 +79,34 @@ function makePurchase() {
 		data: JSON.stringify(object),
 		success: function (data) {
 			showCheckGui(data);
+			getGeneralData();
 		},
 		error: function (ajaxContext) {
 			alert("Something is wrong.")
 		}
 	});
+}
+
+function getGeneralData() {
+	$.ajax({
+		async: true,
+		type: "GET",
+		contentType: "application/json; charset=utf-8",
+		url: "api/GetGeneralData",
+		success: function (data) {
+			refreshGeneralData(data);
+		},
+		error: function (ajaxContext) {
+		}
+	});
+}
+
+function refreshGeneralData(data) {
+	var dataObject = JSON.parse(data);
+	$('#total_preceeds').text(dataObject["TotalPreceeds"]);
+	$('#today_preceeds').text(dataObject["TodayPreceeds"]);
+	$('#total_purchases').text(dataObject["PurchasesCount"]);
+	$('#today_purchases').text(dataObject["TodayPurchases"]);
 }
 
 function showCheckGui(data) {
@@ -116,7 +139,17 @@ function displayCheck(data) {
 		tbody.append(newRow);
 	}
 	var priceRow = '<tr><td colspan = 3 align="right"> Total price: ' + totalPrice + '<td></tr>';
-	var dateRow = '<tr><td colspan = 3 align="right"> Date time: ' + dateTime + '<td></tr>';
+	var dateRow = '<tr><td colspan = 3 align="right"> Date time: ' + timeUtcToLocal(dateTime) + '<td></tr>';
 	tbody.append(priceRow);
 	tbody.append(dateRow);
 }
+
+function timeUtcToLocal(datetime) {
+	var utcTime = moment.utc(datetime);
+	var localTime = utcTime.local();
+	return localTime.format("DD-MM-YYYY HH:mm:ss");
+}
+
+$(document).ready(function () {
+	getGeneralData();
+});

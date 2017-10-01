@@ -1,12 +1,16 @@
-﻿@model List<Product>
-
-@{
+﻿@{
     ViewData["Title"] = "Cash Register";
 }
 
 
 <div class="container">
     <h1 align="center">Cash register</h1>
+    <p>Total purchases: <span id="total_purchases"></span></p>
+    <p>Total preceeds: <span id="total_preceeds"></span> $</p>
+    <p>Today purchases: <span id="today_purchases"></span></p>
+    <p>Today preceeds: <span id="today_preceeds"></span> $</p>
+
+    <hr />
     <select asp-items="@ViewBag.ProductsSelect" id="selected_product" class="form-control custom-form-control"></select>
     <i class="fa fa-plus-square fa-2x" id="add_btn" aria-hidden="true" onclick="addProduct()"></i>
 
