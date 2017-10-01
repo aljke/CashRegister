@@ -35,3 +35,11 @@ textarea {
         display: none;
     }
 }
+
+.custom-form-control{
+    display: inline;
+}
+
+.custom-table-stripped{
+    width: 75%;
+}
