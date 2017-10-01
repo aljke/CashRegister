@@ -1,5 +1,6 @@
 ﻿using CashRegister.AppDbContext;
 using CashRegister.Helper;
+using CashRegister.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,8 @@ namespace CashRegister
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
 			);
+			services.AddTransient<IPurchaseRepository, PurchaseRepository>();
+
 			services.AddMvc();
         }
 
@@ -37,8 +40,6 @@ namespace CashRegister
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
 			ApplicationDbContext context)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
 
             if (env.IsDevelopment())
             {
