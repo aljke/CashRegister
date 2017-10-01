@@ -15,14 +15,14 @@ namespace CashRegister.Helper
 			this.context = context;
 		}
 
-		public async Task Initialize()
+		public async void Initialize()
 		{
-			await InitializeDefaultProducts();
+			await InitializeDefaultProductsAsync();
 
 			await context.SaveChangesAsync();
 		}
 
-		private async Task InitializeDefaultProducts()
+		private async Task InitializeDefaultProductsAsync()
 		{
 			if (!context.Products.Any())
 			{
