@@ -40,8 +40,12 @@ namespace CashRegister
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
 			ApplicationDbContext context)
         {
+			//call ConfigureLogger in a centralized place in the code
+			ApplicationLogging.ConfigureLogger(loggerFactory);
+			//set it as the primary LoggerFactory to use everywhere
+			ApplicationLogging.LoggerFactory = loggerFactory;
 
-            if (env.IsDevelopment())
+			if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();

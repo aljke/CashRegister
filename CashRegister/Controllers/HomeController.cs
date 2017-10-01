@@ -9,23 +9,35 @@ using Newtonsoft.Json.Linq;
 using CashRegister.Entities;
 using CashRegister.ViewModels;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace CashRegister.Controllers
 {
     public class HomeController : Controller
     {
 		private readonly IPurchaseRepository purchaseRepo;
+		private readonly ILogger<HomeController> _logger;
 
-		public HomeController(IPurchaseRepository purchaseRepository)
+		public HomeController(IPurchaseRepository purchaseRepository, ILogger<HomeController> logger)
 		{
 			purchaseRepo = purchaseRepository;
+			_logger = logger;
 		}
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
 			var products = purchaseRepo.GetAllProductsAsync();
 			ViewBag.ProductsSelect = new SelectList(products, "Id", "Caption");
-            return View();
+
+			var allPurchases = await purchaseRepo.GetAllCheckDataAsync();
+			var todayPurchases = allPurchases.Where(x => x.UtcTime.Day == DateTime.UtcNow.Day);
+
+			ViewBag.PurchasesCount = allPurchases.Count();
+			ViewBag.TotalAmount = allPurchases.Sum(x => x.CheckProducts.Sum(y => y.Price * y.Amount));
+			ViewBag.TodayPurchases = todayPurchases.Count();
+			ViewBag.TodayPreceeds = todayPurchases.Sum(x => x.CheckProducts.Sum(y => y.Price * y.Amount));
+
+			return View();
         }
 
 		[HttpPost]
@@ -64,6 +76,7 @@ namespace CashRegister.Controllers
 			}
 			catch(Exception ex)
 			{
+				_logger.LogCritical(ex.StackTrace); // something is bad
 				return new BadRequestResult();
 			}
 		}
